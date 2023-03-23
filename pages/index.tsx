@@ -2,59 +2,54 @@
 import { FC } from 'react';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+import SubComponent1 from '../components/SubComponent1';
+import SubComponent2 from '../components/SubComponent2';
+
+export interface IFormInputs {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+const schema: any = yup.object().shape({
+  email: yup.string().email().required(),
+  password: yup.string().min(4).max(20).required(),
+  firstName: yup.string().required(),
+  lastName: yup.string().required(),
+});
 
 const Home: FC = () => {
+  // @ts-ignore
+  const methods = useForm<IFormInputs>({ resolver: yupResolver(schema) });
+
+  const formSubmitHandler: SubmitHandler<IFormInputs> = (data: IFormInputs) => {
+    console.log(data, 'data');
+  };
+
   return (
     <div className={styles.container}>
       <Head>
-        <title>ReceitaClient</title>
+        <title>React Hook Form</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a href="https://github.com/vercel/next.js/tree/master/examples" className={styles.card}>
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>Instantly deploy your Next.js site to a public URL with Vercel.</p>
-          </a>
-        </div>
+        {/* @ts-ignore */}
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(formSubmitHandler)}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <SubComponent1 />
+              <SubComponent2 />
+              <input type="submit" />
+            </div>
+          </form>
+        </FormProvider>
       </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
     </div>
   );
 };
